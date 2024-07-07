@@ -86,7 +86,14 @@ If the command `git submodule update --init --recursive` fails to execute succes
    git rm <path-to-submodule>
    ```
 
-4. **Add manually clone submodules:**
+4. **Check out to correct commit:**
+
+   ```
+   cd path/to/submodule/mannually_submodule
+   git check out correct_commit
+   ```
+
+5. **Add manually clone submodules:**
 
    ```
    git submodule add https://github.com/username/submodule.git path/to/submodule/
