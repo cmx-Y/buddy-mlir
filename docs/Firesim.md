@@ -36,7 +36,7 @@ These are a collection of local machines (“run farm machines”) **with FPGAs 
 
 ## System Setup
 
-We run Firesim on Xilinx Alveo U280 server.
+We run Firesim on Xilinx VC707 server.
 
 ## FireSim Repo Setup
 
@@ -50,13 +50,18 @@ We run Firesim on Xilinx Alveo U280 server.
  git checkout 1.18.0
 ```
 
-The Firesim repository contains many submodules. It's advisable to execute the following command beforehand to install all submodules:
+The Firesim repository contains many submodules. You can execute the following command beforehand to install all submodules(if you have enough disk space!!!):
 
-```
+```shell
+# repository 'https://github.com/ucb-bar/hammer-mentor-plugins.git/' not doesn't exist
+cd firesim/target-design/chipyard/
+git rm vlsi/hammer-mentor-plugins/
+cd firesim/
 git submodule update --init --recursive
 ```
 
 This command ensures that all necessary submodules are cloned and initialized, preparing the repository for subsequent installation scripts or procedures.
+Of course, you can choose not to execute this command, because the subsequent installation script will automatically clone the submodules.
 
 If the command `git submodule update --init --recursive` fails to execute successfully, you can manually clone each submodule that wasn't cloned properly. Here’s how you can proceed:
 
@@ -71,35 +76,18 @@ If the command `git submodule update --init --recursive` fails to execute succes
    - Navigate into the submodule directory. For example:
 
      ```
-     cd path/to/submodule/../
+     cd path/to/submodule/
      ```
 
-   - Manually clone the submodule from its source repository. For instance:
+   - Manually clone the submodule from its source repository:
 
      ```
-     git clone https://github.com/username/submodule.git
+     git submodule init
+     git submodule update
+     or 
+     git fetch
      ```
 
-3. **Delete existing submodules:**
-
-   ```
-   git rm <path-to-submodule>
-   ```
-
-4. **Check out to correct commit:**
-
-   ```
-   cd path/to/submodule/mannually_submodule
-   git check out correct_commit
-   ```
-
-5. **Add manually clone submodules:**
-
-   ```
-   git submodule add https://github.com/username/submodule.git path/to/submodule/
-   ```
-
-   
 
 **2.Set up a default software environment using Conda.**  
 
@@ -160,3 +148,40 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/linux-64/_libgcc
 
 When executing `./build-setup.sh --force $SKIP_TOOLCHAIN_ARG -s 1 -s 4 -s 5 -s 6 -s 7 -s 8 -s 9` , you should dive into `/firesim/target-design/chipyard/scripts`  for more details.
 
+./build-setup.sh: line 310: /home/chenxingyan/firesim/target-design/chipyard/tools/install-circt/bin/download-release-or-nightly-circt.sh: No such file or directory
+
+```bash
+cd firesim/target-design/chipyard/tools/install-circt/
+git restore --staged bin/download-release-or-nightly-circt.sh
+git restore bin/download-release-or-nightly-circt.sh
+```
+
+
+error: the following file has local modifications:
+    sims/firesim
+(use --cached to keep the file, or -f to force removal)
+fatal: Submodule work tree 'sims/firesim' contains local modifications; use '-f' to discard them
+```bash
+cd firesim/target-design/chipyard/sims
+git rm --cached firesim/
+```
+Then comment `git submodule deinit sims/firesim` in build-setup-nolog.sh. 
+
+```bash
+source sourceme-manager.sh --skip-ssh-setup
+```
+
+firesim managerinit --platform xilinx_vcu118
+
+```bash
+# assumes you already cd'd into your firesim repo
+# and sourced sourceme-manager.sh
+#
+# then:
+cd sw/firesim-software
+./init-submodules.sh
+# before this step, you should install guestmount
+# you can refer to 
+# https://docs.fires.im/en/stable/Getting-Started-Guides/On-Premises-FPGA-Getting-Started/Initial-Setup/RHS-Research-Nitefury-II.html?highlight=guestmount#install-guestmount
+./marshal -v build br-base.json
+```
