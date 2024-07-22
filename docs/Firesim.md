@@ -50,43 +50,15 @@ We run Firesim on Xilinx VC707 server.
  git checkout 1.18.0
 ```
 
-The Firesim repository contains many submodules. You can execute the following command beforehand to install all submodules(if you have enough disk space!!!):
+The Firesim repository contains many submodules. These submodules will be cloned in the subsequent installation script. To ensure that the subsequent steps are correct, you must first execute the following command：
 
 ```shell
-# repository 'https://github.com/ucb-bar/hammer-mentor-plugins.git/' not doesn't exist
+# repository 'https://github.com/ucb-bar/hammer-mentor-plugins.git/' doesn't exist
 cd firesim/target-design/chipyard/
 git rm vlsi/hammer-mentor-plugins/
-cd firesim/
-git submodule update --init --recursive
 ```
 
-This command ensures that all necessary submodules are cloned and initialized, preparing the repository for subsequent installation scripts or procedures.
-Of course, you can choose not to execute this command, because the subsequent installation script will automatically clone the submodules.
 
-If the command `git submodule update --init --recursive` fails to execute successfully, you can manually clone each submodule that wasn't cloned properly. Here’s how you can proceed:
-
-1. **Check Submodules**: First, list all the submodules in your repository using the command:
-
-   ```
-   git submodule
-   ```
-
-2. **Manually Clone Submodules**: For each submodule listed, if it hasn't been cloned properly or is missing:
-
-   - Navigate into the submodule directory. For example:
-
-     ```
-     cd path/to/submodule/
-     ```
-
-   - Manually clone the submodule from its source repository:
-
-     ```
-     git submodule init
-     git submodule update
-     or 
-     git fetch
-     ```
 
 
 **2.Set up a default software environment using Conda.**  
@@ -123,56 +95,91 @@ When you are in conda firesim environment, run
 
 While this command may seem simple at first glance, you may encounter various issues during its execution. In such cases, your task is to identify the commands in the script that are causing errors and resolve them one by one. Here are some common errors and their solutions.
 
-ChecksumMismatchError: Conda detected a mismatch between the expected content and downloaded content, try
+- **ChecksumMismatchError:** Conda detected a mismatch between the expected content and downloaded content, try
 
-```bash
-conda clean -all
-or 
-cd ~/conda/pkgs/
-rm -rf *
-```
+  ```bash
+  conda clean -all
+  or 
+  cd ~/conda/pkgs/
+  rm -rf *
+  ```
 
-When executing `conda-lock install --conda $(which conda) -p $RDIR/.conda-env $LOCKFILE` , using the Tsinghua conda mirror significantly improves download speeds and helps avoid most network issues. 
+- If the command `git submodule update --init --recursive` in build-setup.sh fails to execute successfully, you can manually clone each submodule that wasn't cloned properly. Here’s how you can proceed:
 
+  1. **Check Submodules**: First, list all the submodules in your repository using the command:
+
+   ```
+   git submodule
+   ```
+
+  2. **Manually Clone Submodules**: For each submodule listed, if it hasn't been cloned properly or is missing:
+
+   - Navigate into the submodule directory. For example:
+
+     ```
+     cd path/to/submodule/
+     ```
+
+   - Manually clone the submodule from its source repository:
+
+     ```
+     git submodule init
+     git submodule update
+     or 
+     git fetch
+     ```
+
+
+- When executing `conda-lock install --conda $(which conda) -p $RDIR/.conda-env $LOCKFILE` , using the Tsinghua conda mirror significantly improves download speeds and helps avoid most network issues. 
 Modify the contents of the `/firesim/conda-reqs/conda-reqs.conda-lock.yml` file by replacing all occurrences of `https://conda.anaconda.org/` with `https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/`. This change will enable the use of the Tsinghua mirror. For example, replace:
 
-```
-https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
-```
+  ```
+  https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
+  ```
 
-with:
+  with:
 
-```
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
-```
+  ```
+  https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
+  ```
 
-When executing `./build-setup.sh --force $SKIP_TOOLCHAIN_ARG -s 1 -s 4 -s 5 -s 6 -s 7 -s 8 -s 9` , you should dive into `/firesim/target-design/chipyard/scripts`  for more details.
+- When executing `./build-setup.sh --force $SKIP_TOOLCHAIN_ARG -s 1 -s 4 -s 5 -s 6 -s 7 -s 8 -s 9` , you should dive into `/firesim/target-design/chipyard/scripts`  for more details.
 
-./build-setup.sh: line 310: /home/chenxingyan/firesim/target-design/chipyard/tools/install-circt/bin/download-release-or-nightly-circt.sh: No such file or directory
+- ./build-setup.sh: line 310: /home/chenxingyan/firesim/target-design/chipyard/tools/install-circt/bin/download-release-or-nightly-circt.sh: No such file or directory
 
-```bash
-cd firesim/target-design/chipyard/tools/install-circt/
-git restore --staged bin/download-release-or-nightly-circt.sh
-git restore bin/download-release-or-nightly-circt.sh
-```
+  ```bash
+  cd firesim/target-design/chipyard/tools/install-circt/
+  git restore --staged bin/download-release-or-nightly-circt.sh
+  git restore bin/download-release-or-nightly-circt.sh
+  ```
 
 
-error: the following file has local modifications:
+- error: the following file has local modifications:
     sims/firesim
 (use --cached to keep the file, or -f to force removal)
 fatal: Submodule work tree 'sims/firesim' contains local modifications; use '-f' to discard them
-```bash
-cd firesim/target-design/chipyard/sims
-git rm --cached firesim/
-```
-Then comment `git submodule deinit sims/firesim` in build-setup-nolog.sh. 
+  ```bash
+  cd firesim/target-design/chipyard/sims
+  git rm --cached firesim/
+  ```
+  Then comment `git submodule deinit sims/firesim` in build-setup-nolog.sh. 
+
+Once build-setup.sh completes, run:
 
 ```bash
 source sourceme-manager.sh --skip-ssh-setup
 ```
+This will perform various environment setup steps, such as adding the RISC-V tools to your path.
 
-firesim managerinit --platform xilinx_vcu118
+**4.Initializing FireSim Config Files**
+The FireSim manager contains a command that will automatically provide a fresh set of configuration files for a given platform.
 
+To run it, do the following: `firesim managerinit --platform xilinx_vcu118`
+
+## Running a Single Node Simulation
+**1.Building target software**
+
+Build the Linux distribution like:
 ```bash
 # assumes you already cd'd into your firesim repo
 # and sourced sourceme-manager.sh
@@ -180,8 +187,23 @@ firesim managerinit --platform xilinx_vcu118
 # then:
 cd sw/firesim-software
 ./init-submodules.sh
-# before this step, you should install guestmount
-# you can refer to 
-# https://docs.fires.im/en/stable/Getting-Started-Guides/On-Premises-FPGA-Getting-Started/Initial-Setup/RHS-Research-Nitefury-II.html?highlight=guestmount#install-guestmount
 ./marshal -v build br-base.json
 ```
+Before executing `./marshal -v build br-base.json` , you need to ask the system administrator to help you install the guestmount. The specific installation steps are shown in this link : https://docs.fires.im/en/stable/Getting-Started-Guides/On-Premises-FPGA-Getting-Started/Initial-Setup/RHS-Research-Nitefury-II.html?highlight=guestmount#install-guestmount
+
+When executing `./marshal -v build br-base.json`, you may encounter such error:
+`subprocess.CalledProcessError:Command 'cp -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/boards/firechip/base-workloads/br-base/overlay/usr /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount' returned non-zero exit status 1.`
+
+This error is caused by the following commands that are automatically executed in the script:
+```bash
+$ guestmount --pid-file guestmount.pid -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/images/firechip/br-base/br-base.img -m /dev/sda /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
+$ cp -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/boards/firechip/base-workloads/br-base/overlay/usr /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
+```
+One solution to this problem is to manually execute the following commands in the shell:
+```bash
+$ guestmount --pid-file guestmount.pid -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/images/firechip/br-base/br-base.img -m /dev/sda /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
+$ cp -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/boards/firechip/base-workloads/br-base/overlay/usr /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
+$ cp -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/boards/firechip/base-workloads/br-base/overlay/etc /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
+$ guestunmount /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
+```
+And comment `run(sudoCmd + ['cp', '-a', str(f.src), dst])` in `/home/xxx/firesim/sw/firesim-software/wlutil`. Then run `./marshal -v build br-base.json` again.
