@@ -207,3 +207,22 @@ $ cp -a /home/xxx/firesim/target-design/chipyard/software/firemarshal/boards/fir
 $ guestunmount /home/xxx/firesim/target-design/chipyard/software/firemarshal/disk-mount
 ```
 And comment `run(sudoCmd + ['cp', '-a', str(f.src), dst])` in `/home/xxx/firesim/sw/firesim-software/wlutil`. Then run `./marshal -v build br-base.json` again.
+
+**2.firesim enumeratefpgas**
+Run the title command so that FireSim can generate a mapping from the FPGA ID used for JTAG programming to the PCIe ID used to run simulations.
+
+Before executing this command, you must ensure that the SSH Key is set correctly. Please refer to the steps in the link : https://docs.fires.im/en/stable/Getting-Started-Guides/On-Premises-FPGA-Getting-Started/Initial-Setup/Xilinx-VCU118.html#set-up-ssh-keys.
+
+You also need to execute the following command:
+```bash
+cd firesim/target-design/chipyard/generators/hwacha/
+git restore --staged src/
+git restore src/
+
+cd firesim/target-design/chipyard/generators/caliptra-aes-acc/
+git restore --staged src/ software/
+git restore src/ software/
+```
+
+According to the FPGA board you are using, set the target_config part in `firesim/deploy/config_runtime.yaml` to the corresponding value. For example, if we are using U280, set `target_config:default_hw_config:` to `alveo_u280_firesim_rocket_singlecore_no_nic`.
+
